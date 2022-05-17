@@ -18,13 +18,33 @@
 
 //SRP: -states that a class should have only one reason for change(The reason for change being the responsibility that class is meant to serve)
 
-class Keyboard {
+//Dependency inversion Principle: -States that high level modules should not depend on low level modules but instead both should depend on abstractions and interfaces
+
+interface InputDevice{
+  inputData(data:any):any;
+}
+
+interface Memory{
+  memory:Array<any>;
+  store(data:any):any;
+  retrieve():any;
+}
+
+interface DisplayDevice{
+  display(data:any):any;
+}
+
+interface ErrorHandler{
+  handleError(error:any):any;
+}
+
+class Keyboard implements InputDevice {
  inputData(data:any){
   console.log(data)
  }
 }
 
-class InMemory {
+class InMemory implements Memory {
  memory:Array<any>=[];
 
  store(data:any){
@@ -43,13 +63,13 @@ class CPU {
   }
 }
 
-class Monitor {
+class Monitor implements DisplayDevice{
  display(data:any){
    console.log('displating '+data+ ' on monitor');
  }
 }
 
-class ErrorHandler {
+class Erro implements ErrorHandler{
   handleError(error:any){
     console.log('Error:'+error)
   }
@@ -57,44 +77,52 @@ class ErrorHandler {
 
  class Computer {
   //Data
-  memory:Array<any>=[];
+  inputDevice:InputDevice;
+  memory:Memory;
+  processor:CPU;
+  displayDevice:DisplayDevice;
+  erro:ErrorHandler;
 
+  constructor(inputDevice:InputDevice,memory:Memory,processor:CPU,displayDevice:DisplayDevice,erro:Erro){
+    this.inputDevice=inputDevice;
+    this.memory=memory;
+    this.processor=processor;
+    this.displayDevice=displayDevice;
+    this.erro=erro;
+  }
 
   //methods
   input(){
-   let keyBoard=new Keyboard();
-   keyBoard.inputData('data');
+   this.inputDevice.inputData('data');
   }
 
   store(data:any){
    //delegation
-   let inMemory=new InMemory();
-   inMemory.store(data);
+   this.memory.store(data);
   }
 
   retrieve(){
-   let inMemory=new InMemory();
-  return inMemory.retrieve();
+  return this.memory.retrieve();
   }
 
   process(data:any){
-   let processor=new CPU;
-   processor.process(data);
+   this.processor.process(data);
   }
 
   display(data:any){
-   let monitor=new Monitor();
-   monitor.display(data);
+   this.displayDevice.display(data);
   }
 
   handleError(error:any){
-   let errorHandler=new ErrorHandler()
-   errorHandler.handleError(error);
+   this.erro.handleError(error);
   }
  } 
 
 //Test
 let computer=new Computer();
+computer.displayDevice=new Monitor();
+computer.display('ffffff')
 
-computer.handleError('errrrr');
+
+
 
